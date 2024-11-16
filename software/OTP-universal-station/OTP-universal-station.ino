@@ -1,11 +1,21 @@
 #include <ESP8266WiFi.h>
+#include <DNSServer.h>
+#include "settings.h"
 
-const String open_ssid = "OpenTimingProject";
-const String private_ssid = "OpenTimingProjectEvent"; // Eventualy load this from EPROM
+
 int mode = 0;
 // Mode 0 - Base mode - Hosting AP and timming server
 // Mode 1 - Satelite mode - Connecting to open WiFi and working as a satelite
 // Mode 2 - Private satelite mode - Connecting to private WiFi. May be in "high performance mode"
+const int buttonPin = 16;
+
+// Base logic variables
+int lastRunStart = 0;
+int lastRunId = 0;
+int lastFinished = 0;
+bool buttonLastState = false;
+
+
 
 int wifi_scan() {
   WiFi.mode(WIFI_STA);
@@ -38,9 +48,6 @@ int wifi_scan() {
   return 0;
 }
 
-void setupSatelite() {}
-
-
 
 void setup() {
   // Check WiFi
@@ -50,11 +57,23 @@ void setup() {
   mode = wifi_scan();
   Serial.print("WiFi scan:");  
   Serial.println(mode);
+  
+  pinMode(buttonPin, INPUT);
+  pixels.begin();
+  pixels.setBrightness(95);
 
+  switch (mode) {
+    case 0: setupBase(); break;
+    case 1: setupSatelite(); break;
+    case 2: /*To be done...*/break;
+  }
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  switch (mode) {
+    case 0: loopBase(); break;
+    case 1: loopSatelite(); break;
+    case 2: /*To be done...*/break;
+  }
 }
