@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>
 #include "settings.h"
@@ -16,7 +17,6 @@ int lastFinished = 0;
 bool buttonLastState = false;
 
 
-
 int wifi_scan() {
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
@@ -24,7 +24,10 @@ int wifi_scan() {
 
   Serial.println(F("Starting WiFi scan..."));
 
-  int scanResult = WiFi.scanNetworks(/*async=*/false, /*hidden=*/true);
+  int scanResult = WiFi.scanNetworks(
+    false, // asynvc
+    true // hidden
+  );
   if (scanResult == 0) {
     return 0;
   }
@@ -50,30 +53,35 @@ int wifi_scan() {
 
 
 void setup() {
+  Serial.begin(115200);
+
+  Serial.println("\nInitialization of pixels...");
+  init_pixels();
+  pixelsBootAnimation();
+  
   // Check WiFi
   // - Setup for debug
-  Serial.begin(115200);
   Serial.println(F("\nScannig for known hotspots..."));
+  
   mode = wifi_scan();
   Serial.print("WiFi scan:");  
   Serial.println(mode);
-  
+    
   pinMode(buttonPin, INPUT);
-  pixels.begin();
-  pixels.setBrightness(95);
 
   switch (mode) {
     case 0: setupBase(); break;
     case 1: setupSatelite(); break;
-    case 2: /*To be done...*/break;
+    case 2: break;
   }
-
+  Serial.println("\nSetup completed...");
 }
 
 void loop() {
   switch (mode) {
     case 0: loopBase(); break;
     case 1: loopSatelite(); break;
-    case 2: /*To be done...*/break;
+    case 2: break;
   }
+  pixelsAnimate();
 }
