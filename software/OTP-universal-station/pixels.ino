@@ -6,11 +6,25 @@ bool showingDisconnected = false;
 int last_frame = 0;
 int last_frame_state = 0;
 int active_animation = 0;
+/*
+  0 - None
+  1 - Disconnected
+  2 - Run
+  3 - Stop
+  4 - Signal Base
+  5 - Signal Satelite
+*/
 
-const uint32_t colorBlack = pixels.Color(0, 0, 0);
-const uint32_t colorStartup = pixels.Color(100, 0, 200);
-const uint32_t colorDisconnected = pixels.Color(130, 112, 5);
-const uint32_t colorStop = pixels.Color(10, 200, 15);
+
+const uint32_t colorBlack        = pixels.Color(0,     0,   0);
+const uint32_t colorStartup      = pixels.Color(100,   0, 200);
+const uint32_t colorBase         = pixels.Color(200, 200, 200);
+const uint32_t colorSatelite     = pixels.Color(250, 100, 250);
+const uint32_t colorDisconnected = pixels.Color(130, 112,   5);
+const uint32_t colorLoad         = pixels.Color(255,   0, 255);
+const uint32_t colorRun          = pixels.Color(200,   0,   0);
+const uint32_t colorStop         = pixels.Color( 15, 250,   0);
+
 
 void init_pixels() {
   pixels.begin();
@@ -44,9 +58,32 @@ void pixelsBootAnimation() {
   }
 }
 
+void pixelsBase() {
+  active_animation = 4;
+  pixels.fill(colorBase);
+  pixels.show();
+}
+
+void pixelsSatelite() {
+  active_animation = 5;
+  pixels.fill(colorSatelite);
+  pixels.show();
+}
+
+void pixelsRun() {
+  active_animation = 2;
+  pixels.fill(colorRun);
+  pixels.show();
+}
+
+void pixelsStop() {
+  active_animation = 3;
+  pixels.fill(colorStop);
+  pixels.show();
+}
 
 void pixelsAnimate() {
-  switch active_animation {
+  switch (active_animation) {
     case 1:
       // Disconnected
       int now = millis();
@@ -62,6 +99,5 @@ void pixelsAnimate() {
         last_frame = now;
       }
     break;
-    default: break;
   }
 }

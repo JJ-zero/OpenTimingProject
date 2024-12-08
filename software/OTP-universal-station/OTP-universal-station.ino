@@ -11,9 +11,6 @@ int mode = 0;
 const int buttonPin = 16;
 
 // Base logic variables
-int lastRunStart = 0;
-int lastRunId = 0;
-int lastFinished = 0;
 bool buttonLastState = false;
 
 
