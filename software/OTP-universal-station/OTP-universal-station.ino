@@ -13,6 +13,11 @@ const int buttonPin = 16;
 // Base logic variables
 bool buttonLastState = false;
 
+/*
+To be used:
+tone(D5, 6400, 80);
+*/
+
 
 int wifi_scan() {
   WiFi.mode(WIFI_STA);
