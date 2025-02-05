@@ -65,7 +65,12 @@ void setupBase() {
   });
 
   webServer.begin();
+  tone(D5, 6400, 50);
   pixelsBase();
+  delay(90);
+  tone(D5, 6400, 50);
+  delay(90);
+  tone(D5, 6400, 50);
 };
 
 void loopBase() {
