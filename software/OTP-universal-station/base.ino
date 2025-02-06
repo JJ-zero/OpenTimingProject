@@ -1,5 +1,6 @@
 #include <ESP8266WebServer.h>
 #include "pages.h"
+#include <ArduinoOTA.h>
 
 
 ESP8266WebServer webServer(80);
@@ -44,6 +45,20 @@ void setupBase() {
     webServer.send(200, "json", buffer);
   });
 
+  webServer.on("/api/battery", []() {
+    int value = analogRead(BATTERY_PIN);
+    int range = BATTERY_FULL - BATTERY_EMPTY;
+    int percentage = ((value - BATTERY_EMPTY) * 100) / range;
+    String buffer;
+    buffer.reserve(127);
+    buffer = "{\"raw\": ";
+    buffer += value;
+    buffer += ", \"percentage\": ";
+    buffer += percentage;
+    buffer += "}";
+    webServer.send(200, "json", buffer);
+  });
+
   webServer.on("/api/gate", []() {
     int now = millis();
     if (lastRunStart != 0) {
@@ -64,7 +79,44 @@ void setupBase() {
     }
   });
 
+
+  ArduinoOTA.setHostname("OTP base");
+  ArduinoOTA.setPassword("optota"); 
+  ArduinoOTA.onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+      type = "sketch";
+    } else {  // U_FS
+      type = "filesystem";
+    }
+    Serial.println("Start updating " + type);
+  });
+  ArduinoOTA.onEnd([]() {
+    pixelsBootAnimation();
+    Serial.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    pixelsUpdateProgress(((progress * 2) / (total / 128)));
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) {
+      Serial.println("Auth Failed");
+    } else if (error == OTA_BEGIN_ERROR) {
+      Serial.println("Begin Failed");
+    } else if (error == OTA_CONNECT_ERROR) {
+      Serial.println("Connect Failed");
+    } else if (error == OTA_RECEIVE_ERROR) {
+      Serial.println("Receive Failed");
+    } else if (error == OTA_END_ERROR) {
+      Serial.println("End Failed");
+    }
+  });
+
   webServer.begin();
+  ArduinoOTA.begin();
+
   tone(D5, 6400, 50);
   pixelsBase();
   delay(90);
@@ -76,6 +128,7 @@ void setupBase() {
 void loopBase() {
   dnsServer.processNextRequest();
   webServer.handleClient();
+  ArduinoOTA.handle();
   bool buttonValue = digitalRead(buttonPin);
   if (buttonValue != buttonLastState) {
     if (!buttonValue) {

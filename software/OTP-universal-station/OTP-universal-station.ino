@@ -3,6 +3,9 @@
 #include <DNSServer.h>
 #include "settings.h"
 
+#define BATTERY_PIN A0
+#define BATTERY_EMPTY 210
+#define BATTERY_FULL 266
 
 int mode = 0;
 // Mode 0 - Base mode - Hosting AP and timming server

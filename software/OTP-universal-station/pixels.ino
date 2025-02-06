@@ -46,9 +46,9 @@ void pixelsSetDisconnected() {
 
 void pixelsBootAnimation() {
   char g[] = {
-    0, 5, 6, 11, 12, 17,
-    1, 4, 7, 10, 13, 16,
-    2, 3, 8,  9, 14, 15
+    0, 5, 6, 11, 12, 17, // Inner ring
+    1, 4, 7, 10, 13, 16, // Midle ring
+    2, 3, 8,  9, 14, 15  // Outer ring
   };
   pixels.clear();
   for (int i = 0; i < 18; i++) {
@@ -56,6 +56,24 @@ void pixelsBootAnimation() {
     pixels.show();
     delay(75);
   }
+}
+
+void pixelsUpdateProgress(int progress) { // progress in 255
+  pixels.fill(colorBlack);
+  char ring[] = {2, 3, 8,  9, 14, 15};
+  for (int i = 0; i < 6; i++) {
+    int green = (progress * 6) - (i * 255);
+    if (green < 0) {
+      green = 0;
+    }
+    if (green > 255) {
+      green = 254;
+    }
+    int red = 255 - green;
+    pixels.setPixelColor(ring[i], pixels.Color(red, green, 0));
+  }
+  Serial.println(" .");
+  pixels.show();
 }
 
 void pixelsBase() {
